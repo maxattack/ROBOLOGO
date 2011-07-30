@@ -18,7 +18,7 @@ using System;
 namespace RoboLogo.Lang {
 	
 	/// <summary>
-	/// Interface for all instructions.  Conditional expressions are treated as expr!=0 numeric expressions
+	/// Interface for all expressions.  Conditional expressions are treated as expr!=0 numeric expressions
 	/// </summary>
 	public abstract class Expression {
 		public abstract int Compute(Interpreter interp);
