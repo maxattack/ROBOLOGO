@@ -65,16 +65,7 @@ namespace RoboLogo.Lang {
 		//---------------------------------------------------------------------
 		
 		State Idle(Token t) {
-			if (t.type == TokenType.Keyword) {
-				switch(t.data) {
-					case "set": return SawSet;
-					case "start": return SawStart;
-					case "stop": return SawStop;
-					case "move": return SawMove;
-					case "turn": return SawTurn;
-					default: return null;
-				}
-			} else {
+			if (t.type == TokenType.Expression) {
 				var exp = mExpParser.Parse(t.data) as VariableExpression;
 				if (exp != null) {
 					var name = exp.name;
@@ -82,6 +73,15 @@ namespace RoboLogo.Lang {
 						if (token.data == "=") { return ExpectingAssignmentExpression(name); }
 						return null;
 					};
+				}
+			} else {
+				switch(t.data) {
+					case "set": return SawSet;
+					case "start": return SawStart;
+					case "stop": return SawStop;
+					case "move": return SawMove;
+					case "turn": return SawTurn;
+					default: return null;
 				}
 			}
 			return null;
