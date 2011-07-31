@@ -23,27 +23,12 @@ namespace RoboLogo {
 	class MainClass {
 		
 		public static void Main (string[] args) {
-			/*
-			string test = "";
-			while(true) {
-				var parser = new ExpressionParser();
-				test = Console.ReadLine();
-				if (test == "q") { break; }
-				Expression exp;
-				if (parser.Parse(test, out exp)) {
-					Console.WriteLine("{0} = {1}", exp.ToString(), exp.Compute(null));
-				} else {
-					Console.WriteLine("Bad Expression");
-				}
-			}
-			*/
 			// a quick interpreter test program (for-loop)
-			
 			var interpreter = new Interpreter(StupidCompiler(@"
 				set X 0
 				hello
 				set X X+1
-				branch X<10 1 4
+				branch (X<10) 1 4
 			"));
 			while(interpreter.ExecuteNextInstruction()) {}
 			
