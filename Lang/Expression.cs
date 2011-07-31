@@ -27,12 +27,31 @@ namespace RoboLogo.Lang {
 	/// <summary>
 	/// Implemented Binary Operations
 	/// </summary>
-	public enum BinaryOperation { Add, Subtract, Multiply, Divide, And, Or, Equals, GreaterThan, LessThan }
+	public enum BinaryOperation { 
+		Subtract=10, 
+		Add=20, 
+		Multiply=30, 
+		Divide=40, 
+		Equals=50, 
+		GreaterThan=60, 
+		LessThan=70,
+		And=80, 
+		Or=90, 
+	}
 	
 	/// <summary>
 	/// Implemented Unary Operations
 	/// </summary>
-	public enum UnaryOperation { Negate, Complement }
+	public enum UnaryOperation { 
+		Negate=45, 
+		Complement=95 
+	}
+	
+	partial class Util {
+		public static bool IsOperationBinary(int id) {
+			return id%10 == 0;
+		}
+	}
 	
 	/// <summary>
 	/// Null expression just returns 0
@@ -41,6 +60,8 @@ namespace RoboLogo.Lang {
 		override public int Compute(Interpreter interp) {
 			return 0;
 		}
+		
+		override public string ToString() { return "0"; }
 	}
 	
 	/// <summary>
@@ -56,6 +77,8 @@ namespace RoboLogo.Lang {
 		override public int Compute(Interpreter interp) { 
 			return mValue; 
 		}
+		
+		override public string ToString() { return mValue.ToString(); }
 	}
 	
 	/// <summary>
@@ -75,6 +98,8 @@ namespace RoboLogo.Lang {
 			}
 			return result;
 		}
+		
+		override public string ToString() { return mName; }
 	}
 	
 	/// <summary>
@@ -113,6 +138,21 @@ namespace RoboLogo.Lang {
 				default: return 0;
 			}
 		}
+		
+		override public string ToString() { 
+			switch(mOp) {
+				case BinaryOperation.Add: return "("+mLeft + "+" + mRight+")";
+				case BinaryOperation.Subtract: return "("+mLeft + "-" + mRight+")";
+				case BinaryOperation.Multiply: return "("+mLeft + "*" + mRight+")";
+				case BinaryOperation.Divide: return "("+mLeft + "/" + mRight+")";
+				case BinaryOperation.And: return "("+mLeft + "&" + mRight+")";
+				case BinaryOperation.Or: return "("+mLeft + "|" + mRight+")";
+				case BinaryOperation.Equals: return "("+mLeft + "=" + mRight+")";
+				case BinaryOperation.GreaterThan: return "("+mLeft + ">" + mRight+")";
+				case BinaryOperation.LessThan: return "("+mLeft + "<" + mRight+")";
+				default: return "";
+			}
+		}
 	}
 	
 	/// <summary>
@@ -132,6 +172,14 @@ namespace RoboLogo.Lang {
 				case UnaryOperation.Negate: return -mExpr.Compute(interp);
 				case UnaryOperation.Complement: return mExpr.Compute(interp) != 0 ? 0 : 1;
 				default: return 0;
+			}
+		}
+		
+		override public string ToString() {
+			switch(mOp) {
+				case UnaryOperation.Negate: return "-" + mExpr;
+				case UnaryOperation.Complement: return "!" + mExpr;
+				default: return "";
 			}
 		}
 	}
