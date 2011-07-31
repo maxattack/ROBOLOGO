@@ -35,7 +35,7 @@ namespace RoboLogo.Lang {
 			mUnaryOpTable.Add("!", UnaryOperation.Complement);
 		}
 		
-		public bool Parse(string expr, out Expression result) {
+		public Expression Parse(string expr) {
 			{ // verify parenthesis consistency
 				int pcount = 0;
 				for(int i=0; i<expr.Length; ++i) {
@@ -44,19 +44,21 @@ namespace RoboLogo.Lang {
 					} else if (expr[i] == ')') {
 						--pcount;
 						if (pcount < 0) { 
-							result = null;
-							return false; 
+							return null;
 						}
 					}
 				}
 				if (pcount != 0) { 
-					result = null;
-					return false; 
+					return null;
 				}
 			}
 			
 			expr = expr.Trim();
-			return ParseSubExpression(expr, out result);
+			Expression result;
+			if (ParseSubExpression(expr, out result)) {
+				return result;
+			}
+			return null;
 		}
 		
 		//---------------------------------------------------------------------

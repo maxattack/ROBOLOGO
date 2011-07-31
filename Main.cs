@@ -57,22 +57,19 @@ namespace RoboLogo {
 		static Instruction[] StupidCompiler(string src) {
 			var buffer = new List<Instruction>();
 			var parser = new ExpressionParser();
-			Expression exp1;
 			foreach(var line in src.Split('\n')) {
 				var trim = line.Trim();
 				if (trim.Length	 > 0) {
 					var tokens = trim.Split(' ');
 					switch(tokens[0]) {
 						case "set":
-							parser.Parse(tokens[2], out exp1);
-							buffer.Add(new SetInstruction(tokens[1], exp1));
+							buffer.Add(new SetInstruction(tokens[1], parser.Parse(tokens[2])));
 							break;
 						case "hello":
 							buffer.Add(new ActionInstruction(arg=>Console.WriteLine("Hello, World"), new NullExpression()) );
 							break;
 						case "branch":
-							parser.Parse(tokens[1], out exp1);
-							buffer.Add(new BranchInstruction(exp1, int.Parse(tokens[2]), int.Parse(tokens[3])) );
+							buffer.Add(new BranchInstruction(parser.Parse(tokens[1]), int.Parse(tokens[2]), int.Parse(tokens[3])) );
 							break;
 					}
 				}
