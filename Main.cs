@@ -33,13 +33,13 @@ namespace RoboLogo {
 			"));
 			*/
 			
-			var parser = new Parser() {
+			var compiler = new InstructionParser() {
 				setColorAction = arg => Console.WriteLine("Setting Color to {0}", arg),
 				setThicknessAction = arg => Console.WriteLine("Setting Thickness to {0}", arg),
 				setStrokeAction = arg => { if (arg!=0) { Console.WriteLine("Stroke ON"); } else { Console.WriteLine("Stroke OFF"); } },
 				moveAction = arg => Console.WriteLine("Moving {0} Units", arg),
 			};
-			var program = parser.Parse(@"
+			var program = compiler.Parse(@"
 				set color to blue
 				set thickness to 42
 				start stroke

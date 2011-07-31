@@ -4,7 +4,8 @@ using System.IO;
 using System.Text;
 
 namespace RoboLogo.Lang {
-	public class Parser {
+	
+	public class InstructionParser {
 		public Action<int> setColorAction;
 		public Action<int> setThicknessAction;
 		public Action<int> setStrokeAction;
@@ -23,10 +24,14 @@ namespace RoboLogo.Lang {
 		StringBuilder mBuilder = new StringBuilder();
 		State mState;
 		List<Instruction> mScratchpad;
-		ExpressionParser mExpParser = new ExpressionParser();
+		ExpressionParser mExpParser;
 		static readonly string[] sPalette = { "red", "green", "blue" };
 		
-		public Parser() {
+		public InstructionParser() : this(new ExpressionParser()) {
+		}
+		
+		public InstructionParser(ExpressionParser exp) {
+			mExpParser = exp;
 		}
 		
 		public Instruction[] Parse(string src) {
@@ -82,7 +87,7 @@ namespace RoboLogo.Lang {
 		}
 		
 		State SawColor(Token t) {
-			if (t.type == Parser.TokenType.Keyword && t.data == "to") {
+			if (t.type == TokenType.Keyword && t.data == "to") {
 				return ExpectingColor;
 			}
 			return null;
@@ -106,7 +111,7 @@ namespace RoboLogo.Lang {
 		}
 		
 		State SawThickness(Token t) {
-			if (t.type == Parser.TokenType.Keyword && t.data == "to") {
+			if (t.type == TokenType.Keyword && t.data == "to") {
 				return ExpectingThickness;
 			}
 			return null;
@@ -213,7 +218,7 @@ namespace RoboLogo.Lang {
 					return true;
 				} else if (char.IsUpper(letter)) {
 					// reading a variable name
-					token.type = Parser.TokenType.Expression;
+					token.type = TokenType.Expression;
 					PullAnotherWord:
 					while(!char.IsWhiteSpace(letter)) {
 						mBuilder.Append(letter);
