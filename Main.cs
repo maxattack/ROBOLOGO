@@ -23,7 +23,7 @@ namespace RoboLogo {
 	class MainClass {
 		
 		public static void Main (string[] args) {
-			
+			/*
 			string test = "";
 			while(true) {
 				var parser = new ExpressionParser();
@@ -36,16 +36,17 @@ namespace RoboLogo {
 					Console.WriteLine("Bad Expression");
 				}
 			}
+			*/
 			// a quick interpreter test program (for-loop)
-			/*
+			
 			var interpreter = new Interpreter(StupidCompiler(@"
-				set i 0
+				set X 0
 				hello
-				set i i+1
-				branch i<10 1 4
+				set X X+1
+				branch X<10 1 4
 			"));
 			while(interpreter.ExecuteNextInstruction()) {}
-			*/
+			
 		}
 		
 		//---------------------------------------------------------------------
@@ -55,60 +56,30 @@ namespace RoboLogo {
 		
 		static Instruction[] StupidCompiler(string src) {
 			var buffer = new List<Instruction>();
+			var parser = new ExpressionParser();
+			Expression exp1;
 			foreach(var line in src.Split('\n')) {
 				var trim = line.Trim();
 				if (trim.Length	 > 0) {
 					var tokens = trim.Split(' ');
 					switch(tokens[0]) {
 						case "set":
-							buffer.Add( new SetInstruction(tokens[1], StupidExpressionParser(tokens[2])) );
+							parser.Parse(tokens[2], out exp1);
+							buffer.Add(new SetInstruction(tokens[1], exp1));
 							break;
 						case "hello":
-							buffer.Add( new ActionInstruction(arg=>Console.WriteLine("Hello, World"), new NullExpression()) );
+							buffer.Add(new ActionInstruction(arg=>Console.WriteLine("Hello, World"), new NullExpression()) );
 							break;
 						case "branch":
-							buffer.Add( new BranchInstruction(StupidExpressionParser(tokens[1]), int.Parse(tokens[2]), int.Parse(tokens[3])) );
+							parser.Parse(tokens[1], out exp1);
+							buffer.Add(new BranchInstruction(exp1, int.Parse(tokens[2]), int.Parse(tokens[3])) );
 							break;
 					}
 				}
 			}
 			return buffer.ToArray();
 		}
-		
-		static readonly Dictionary<char, BinaryOperation> kOpLookup = InitOpTable();
-		
-		static Dictionary<char, BinaryOperation> InitOpTable() {
-			var result = new Dictionary<char, BinaryOperation>();
-			result.Add('+', BinaryOperation.Add);
-			result.Add('-', BinaryOperation.Subtract);
-			result.Add('*', BinaryOperation.Multiply);
-			result.Add('/', BinaryOperation.Divide);
-			result.Add('&', BinaryOperation.And);
-			result.Add('|', BinaryOperation.Or);
-			result.Add('=', BinaryOperation.Equals);
-			result.Add('>', BinaryOperation.GreaterThan);
-			result.Add('<', BinaryOperation.LessThan);
-			return result;
-		}
-		
-		static Expression StupidExpressionParser(string expr) {
-			int index = 0;
-			int literal;
-			while(!kOpLookup.ContainsKey(expr[index])) { 
-				index++; 
-				if (index == expr.Length) {
-					// not a binary operation
-					return int.TryParse(expr, out literal) ? (Expression) new LiteralExpression(literal) : (Expression) new VariableExpression(expr);
-				}
-			}
-			var left = expr.Substring(0, index);
-			var right = expr.Substring(index+1);
-			return new BinaryOperationExpression(
-				kOpLookup[expr[index]],
-				int.TryParse(left, out literal) ? (Expression) new LiteralExpression(literal) : (Expression) new VariableExpression(left),
-				int.TryParse(right, out literal) ? (Expression) new LiteralExpression(literal) : (Expression) new VariableExpression(right)
-			);
-		}
+
 	}
 }
 
