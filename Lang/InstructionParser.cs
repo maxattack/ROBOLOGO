@@ -10,6 +10,7 @@ namespace RoboLogo.Lang {
 		public Action<int> setThicknessAction;
 		public Action<int> setStrokeAction;
 		public Action<int> moveAction;
+		public Action<int> turnAction;
 
 		enum TokenType { Expression, Keyword }
 
@@ -70,10 +71,33 @@ namespace RoboLogo.Lang {
 					case "start": return SawStart;
 					case "stop": return SawStop;
 					case "move": return SawMove;
+					case "turn": return SawTurn;
 					default: return null;
+				}
+			} else {
+				var exp = mExpParser.Parse(t.data) as VariableExpression;
+				if (exp != null) {
+					var name = exp.name;
+					return delegate(Token token) {
+						if (token.data == "=") { return ExpectingAssignmentExpression(name); }
+						return null;
+					};
 				}
 			}
 			return null;
+		}
+		
+		State ExpectingAssignmentExpression(string name) {
+			return delegate(Token t) {
+				if (t.type == TokenType.Expression) {
+					var exp = mExpParser.Parse(t.data);
+					if (exp != null) {
+						mScratchpad.Add(new SetInstruction(name, exp));
+						return Idle;
+					}
+				}
+				return null;
+			};
 		}
 		
 		State SawSet(Token t) {
@@ -173,6 +197,23 @@ namespace RoboLogo.Lang {
 			}
 			return null;
 		}
+		
+		State SawTurn(Token t) {
+			Expression exp = null;
+			if (t.type == TokenType.Expression) {
+				exp = mExpParser.Parse(t.data);
+			} else {
+				switch(t.data) {
+					case "left": exp = new LiteralExpression(90); break;
+					case "right": exp = new LiteralExpression(-90); break;
+				}
+			}
+			if (exp != null) {
+				mScratchpad.Add(new ActionInstruction(turnAction, exp));
+				return Idle;
+			}
+			return null;
+		}
 
 		//---------------------------------------------------------------------
 		// TOKENIZATION
@@ -187,7 +228,11 @@ namespace RoboLogo.Lang {
 				if (!ReadNextChar(out letter)) { return false; }
 			} while(char.IsWhiteSpace(letter));
 			// what is next?
-			if (letter == '(') {
+			if (letter == '=') {
+				token.type = TokenType.Keyword;
+				token.data = letter.ToString();
+				return true;
+			} else if (letter == '(') {
 				// reading an expression
 				int pCount = 1;
 				while(pCount > 0) {
@@ -219,18 +264,13 @@ namespace RoboLogo.Lang {
 				} else if (char.IsUpper(letter)) {
 					// reading a variable name
 					token.type = TokenType.Expression;
-					PullAnotherWord:
 					while(!char.IsWhiteSpace(letter)) {
+						if (!char.IsUpper(letter)) { return false; }
 						mBuilder.Append(letter);
 						if (!ReadNextChar(out letter)) {
-							goto BailOutOfVariableName;
+							break;
 						}
 					}
-					if (letter == ' ' && PeekNextChar(out letter) && char.IsLetter(letter) && char.IsUpper(letter)) {
-						ReadNextChar(out letter);
-						goto PullAnotherWord;
-					}
-					BailOutOfVariableName:
 					token.data = mBuilder.ToString();
 					return true;
 				} else {

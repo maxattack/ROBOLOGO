@@ -68,38 +68,38 @@ namespace RoboLogo.Lang {
 	/// A literal expression evaluates to a constant
 	/// </summary>
 	public class LiteralExpression : Expression {
-		int mValue;
+		public int val;
 		
 		public LiteralExpression(int val) { 
-			mValue = val; 
+			this.val = val; 
 		}
 		
 		override public int Compute(Interpreter interp) { 
-			return mValue; 
+			return val; 
 		}
 		
-		override public string ToString() { return mValue.ToString(); }
+		override public string ToString() { return val.ToString(); }
 	}
 	
 	/// <summary>
 	/// A variable expression looks up a value in the current executing context
 	/// </summary>
 	public class VariableExpression : Expression {
-		string mName;
+		public string name;
 		
 		public VariableExpression(string name) {
-			mName = name;
+			this.name = name;
 		}
 		
 		override public int Compute(Interpreter interp) {
 			int result;
-			if (!interp.GetVariable(mName, out result)) {
+			if (!interp.GetVariable(name, out result)) {
 				Console.WriteLine("Undefined Variable Expression");
 			}
 			return result;
 		}
 		
-		override public string ToString() { return mName; }
+		override public string ToString() { return name; }
 	}
 	
 	/// <summary>

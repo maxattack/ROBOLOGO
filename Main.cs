@@ -38,12 +38,15 @@ namespace RoboLogo {
 				setThicknessAction = arg => Console.WriteLine("Setting Thickness to {0}", arg),
 				setStrokeAction = arg => { if (arg!=0) { Console.WriteLine("Stroke ON"); } else { Console.WriteLine("Stroke OFF"); } },
 				moveAction = arg => Console.WriteLine("Moving {0} Units", arg),
+				turnAction = arg => Console.WriteLine("Turning {0} Degrees", arg),
 			};
 			var program = compiler.Parse(@"
+				X = (10+32)
 				set color to blue
-				set thickness to 42
+				set thickness to 10
 				start stroke
-				move forward 10
+				move forward X
+				turn left
 				move backward 5
 				stop stroke
 			");

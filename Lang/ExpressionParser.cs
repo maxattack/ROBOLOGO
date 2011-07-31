@@ -128,16 +128,10 @@ namespace RoboLogo.Lang {
 			if (int.TryParse(elem, out val)) {
 				result = new LiteralExpression(val);
 			} else {
-				{ // verify variable name
-					int i=0;
-					while(i < elem.Length) {
-						if (!char.IsUpper(elem[i])) { return false; }
-						++i;
-						while (i < elem.Length && !char.IsWhiteSpace(elem[i])) {
-							if (!char.IsLetterOrDigit(elem[i])) { return false; }
-							++i; 
-						}
-						++i;
+				// verify variable name
+				for(int i=0; i<elem.Length; ++i) {
+					if (!char.IsUpper(elem[i])) {
+						return false;
 					}
 				}
 				result = new VariableExpression(elem);
