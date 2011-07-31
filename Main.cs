@@ -24,14 +24,31 @@ namespace RoboLogo {
 		
 		public static void Main (string[] args) {
 			// a quick interpreter test program (for-loop)
+			/*
 			var interpreter = new Interpreter(StupidCompiler(@"
 				set X 0
 				hello
 				set X X+1
 				branch (X<10) 1 4
 			"));
-			while(interpreter.ExecuteNextInstruction()) {}
+			*/
 			
+			var parser = new Parser() {
+				setColorAction = arg => Console.WriteLine("Setting Color to {0}", arg),
+				setThicknessAction = arg => Console.WriteLine("Setting Thickness to {0}", arg),
+				setStrokeAction = arg => { if (arg!=0) { Console.WriteLine("Stroke ON"); } else { Console.WriteLine("Stroke OFF"); } },
+				moveAction = arg => Console.WriteLine("Moving {0} Units", arg),
+			};
+			var program = parser.Parse(@"
+				set color to blue
+				set thickness to 42
+				start stroke
+				move forward 10
+				move backward 5
+				stop stroke
+			");
+			var interpreter = new Interpreter(program);
+			while(interpreter.ExecuteNextInstruction()) {}
 		}
 		
 		//---------------------------------------------------------------------

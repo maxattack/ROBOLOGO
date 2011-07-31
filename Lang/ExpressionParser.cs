@@ -3,9 +3,10 @@ using System.Collections.Generic;
 
 namespace RoboLogo.Lang {
 	
+	/// <summary>
+	/// Parses statements into expression trees
+	/// </summary>
 	public class ExpressionParser {
-		public delegate bool NamePredicate(string name);
-
 		enum TokenType { Operator, Element, SubExpression }
 
 		struct Token {
@@ -36,6 +37,10 @@ namespace RoboLogo.Lang {
 		}
 		
 		public Expression Parse(string expr) {
+			if (expr.Length > 256) {
+				return null;
+			}
+			
 			{ // verify parenthesis consistency
 				int pcount = 0;
 				for(int i=0; i<expr.Length; ++i) {
@@ -198,26 +203,24 @@ namespace RoboLogo.Lang {
 			return false;
 		}
 		
-		bool FindHighestPriorityOperator(List<Token> tokens, int start, int len, out int result) {
+		bool FindHighestPriorityOperator(List<Token> tokens, int start, int len, out int tokenIndex) {
 			int opEnum = -1;
-			result = -1;
+			tokenIndex = -1;
 			for(int i=start; i<start+len; ++i) {
 				if (tokens[i].type == TokenType.Operator) {
 					int val = 0;
 					if (i == 0 || tokens[i-1].type == TokenType.Operator) {
-						// unary operator
 						val = (int) mUnaryOpTable[mOps[tokens[i].opId]];
 					} else {
-						// binary operator
 						val = (int) mBinaryOpTable[mOps[tokens[i].opId]];
 					}
-					if (result == -1 || val < opEnum) { 
+					if (tokenIndex == -1 || val < opEnum) { 
 						opEnum = val;
-						result = i;
+						tokenIndex = i;
 					}
 				}
 			}
-			return result != -1;
+			return tokenIndex != -1;
 		}
 	}
 	
