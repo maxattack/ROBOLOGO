@@ -23,16 +23,6 @@ namespace RoboLogo {
 	class MainClass {
 		
 		public static void Main (string[] args) {
-			// a quick interpreter test program (for-loop)
-			/*
-			var interpreter = new Interpreter(StupidCompiler(@"
-				set X 0
-				hello
-				set X X+1
-				branch (X<10) 1
-			"));
-			*/
-			
 			var compiler = new InstructionParser() {
 				setColorAction = arg => Console.WriteLine("Setting Color to {0}", arg),
 				setThicknessAction = arg => Console.WriteLine("Setting Thickness to {0}", arg),
@@ -56,34 +46,6 @@ namespace RoboLogo {
 			");
 			var interpreter = new Interpreter(program);
 			while(interpreter.ExecuteNextInstruction()) {}
-		}
-		
-		//---------------------------------------------------------------------
-		// Implementation of a "stupid" assembly compiler for testing the 
-		// interpreter separate from the regular compiler
-		//---------------------------------------------------------------------
-		
-		static Instruction[] StupidCompiler(string src) {
-			var buffer = new List<Instruction>();
-			var parser = new ExpressionParser();
-			foreach(var line in src.Split('\n')) {
-				var trim = line.Trim();
-				if (trim.Length	 > 0) {
-					var tokens = trim.Split(' ');
-					switch(tokens[0]) {
-						case "set":
-							buffer.Add(new SetInstruction(tokens[1], parser.Parse(tokens[2])));
-							break;
-						case "hello":
-							buffer.Add(new ActionInstruction(arg=>Console.WriteLine("Hello, World"), new NullExpression()) );
-							break;
-						case "branch":
-							buffer.Add(new BranchInstruction(parser.Parse(tokens[1]), int.Parse(tokens[2]), int.Parse(tokens[3])));
-							break;
-					}
-				}
-			}
-			return buffer.ToArray();
 		}
 
 	}
