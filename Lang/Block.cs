@@ -70,7 +70,7 @@ namespace RoboLogo.Lang {
 		
 		public ForBlock(Expression initialValue, List<Instruction> buffer) : base(buffer) {
 			sForCount++;
-			iterator = "REPEAT_ITERATOR_"+ sForCount;
+			iterator = "_iterator_"+ sForCount; // won't collider with names that are parse-able
 			buffer.Add(new SetInstruction(iterator, initialValue));
 			branchIndex = buffer.Count;
 			branch = new BranchInstruction(
