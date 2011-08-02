@@ -35,8 +35,10 @@ namespace RoboLogo.Lang {
 		Equals=50, 
 		GreaterThan=60, 
 		LessThan=70,
-		And=80, 
-		Or=90, 
+		GreaterThanOrEqualTo=80,
+		LessThanOrEqualTo=90,
+		And=100, 
+		Or=110, 
 	}
 	
 	/// <summary>
@@ -135,6 +137,8 @@ namespace RoboLogo.Lang {
 				case BinaryOperation.Equals: return mLeft.Compute(interp) == mRight.Compute(interp) ? 1 : 0;
 				case BinaryOperation.GreaterThan: return mLeft.Compute(interp) > mRight.Compute(interp) ? 1 : 0;
 				case BinaryOperation.LessThan: return mLeft.Compute(interp) < mRight.Compute(interp) ? 1 : 0;
+				case BinaryOperation.GreaterThanOrEqualTo: return mLeft.Compute(interp) >= mRight.Compute(interp) ? 1 : 0;
+				case BinaryOperation.LessThanOrEqualTo: return mLeft.Compute(interp) <= mRight.Compute(interp) ? 1 : 0;
 				default: return 0;
 			}
 		}
@@ -150,6 +154,8 @@ namespace RoboLogo.Lang {
 				case BinaryOperation.Equals: return "("+mLeft + "=" + mRight+")";
 				case BinaryOperation.GreaterThan: return "("+mLeft + ">" + mRight+")";
 				case BinaryOperation.LessThan: return "("+mLeft + "<" + mRight+")";
+				case BinaryOperation.GreaterThanOrEqualTo: return "("+mLeft + ">=" + mRight+")";
+				case BinaryOperation.LessThanOrEqualTo: return "("+mLeft + "<=" + mRight+")";
 				default: return "";
 			}
 		}

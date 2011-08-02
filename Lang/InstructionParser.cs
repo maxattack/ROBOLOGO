@@ -89,21 +89,14 @@ namespace RoboLogo.Lang {
 					case "turn": return SawTurn;
 					case "while": return SawWhile;
 					case "until": return SawUntil;
+					case "repeat": return SawRepeat;
 					case "increment": return SawIncrement;
 					case "decrement": return SawDecrement;
 				}
 				if (t.data == "end") {
-					if (mBlock.Count == 0) {
-						return null;
-					}
-					var block = mBlock.Pop();
-					switch(block.GetType().Name) {
-						case "WhileBlock":
-							var wb = block as WhileBlock;
-							mScratchpad.Add(new JumpInstruction(wb.instructionIndex));
-							wb.branch.indexFalse = mScratchpad.Count;
-							return Idle;
-					}
+					if (mBlock.Count == 0) { return null; }
+					mBlock.Pop().End();
+					return Idle;
 				}
 				
 			}
@@ -126,16 +119,9 @@ namespace RoboLogo.Lang {
 		State SawSet(Token t) {
 			if (t.type == TokenType.Keyword) {
 				switch(t.data) {
-					case "color": return SawColor;
-					case "thickness": return SawThickness;
+					case "color": return nextToken => nextToken.data == "to" ? ExpectingColor : (State) null;
+					case "thickness": return nextToken => nextToken.data == "to" ? ExpectingThickness : (State) null;
 				}
-			}
-			return null;
-		}
-		
-		State SawColor(Token t) {
-			if (t.type == TokenType.Keyword && t.data == "to") {
-				return ExpectingColor;
 			}
 			return null;
 		}
@@ -157,13 +143,6 @@ namespace RoboLogo.Lang {
 			return null;
 		}
 		
-		State SawThickness(Token t) {
-			if (t.type == TokenType.Keyword && t.data == "to") {
-				return ExpectingThickness;
-			}
-			return null;
-		}
-		
 		State ExpectingThickness(Token t) {
 			if (t.type == TokenType.Expression) {
 				var exp = mExpParser.Parse(t.data);
@@ -175,7 +154,7 @@ namespace RoboLogo.Lang {
 		}
 		
 		State SawStart(Token t) {
-			if (t.type == TokenType.Keyword && t.data == "stroke") {
+			if (t.data == "stroke") {
 				mScratchpad.Add(new ActionInstruction(setStrokeAction, new LiteralExpression(1)));
 				return Idle;
 			}
@@ -183,7 +162,7 @@ namespace RoboLogo.Lang {
 		}
 		
 		State SawStop(Token t) {
-			if (t.type == TokenType.Keyword && t.data == "stroke") {
+			if (t.data == "stroke") {
 				mScratchpad.Add(new ActionInstruction(setStrokeAction, new LiteralExpression(0)));
 				return Idle;
 			}
@@ -196,6 +175,11 @@ namespace RoboLogo.Lang {
 					case "forward": return ExpectingForwardMove;
 					case "backward": return ExpectingBackwardMove;
 				}
+			} else {
+				var exp = mExpParser.Parse(t.data);
+				if (exp == null) { return null; }
+				mScratchpad.Add(new ActionInstruction(moveAction, exp));
+				return Idle;
 			}
 			return null;
 		}
@@ -242,7 +226,7 @@ namespace RoboLogo.Lang {
 			if (t.type == TokenType.Expression) {
 				var exp = mExpParser.Parse(t.data);
 				if (exp == null) { return null; }
-				StartWhileLoop(exp);
+				mBlock.Push(new WhileBlock(exp, mScratchpad));
 				return Idle;
 			}
 			return null;
@@ -252,8 +236,19 @@ namespace RoboLogo.Lang {
 			if (t.type == TokenType.Expression) {
 				var exp = mExpParser.Parse(t.data);
 				if (exp == null) { return null; }
-				StartWhileLoop(new UnaryOperationExpression(UnaryOperation.Complement, exp));
+				exp = new UnaryOperationExpression(UnaryOperation.Complement, exp);
+				mBlock.Push(new WhileBlock(exp, mScratchpad));
 				return Idle;
+			}
+			return null;
+		}
+		
+		State SawRepeat(Token t) {
+			if (t.type == TokenType.Expression) {
+				var exp = mExpParser.Parse(t.data);
+				if (exp == null) { return null; }
+				mBlock.Push(new ForBlock(exp, mScratchpad));
+				return nextToken => nextToken.data == "times" ? Idle : (State)null;
 			}
 			return null;
 		}
@@ -280,18 +275,6 @@ namespace RoboLogo.Lang {
 				return Idle;
 			}
 			return null;
-		}
-		
-		//---------------------------------------------------------------------
-		// HELPERS
-		//---------------------------------------------------------------------
-
-		void StartWhileLoop(Expression exp) {
-			int branchIndex = mScratchpad.Count;
-			var branch = new BranchInstruction(exp, branchIndex+1, -1);
-			Block b = new WhileBlock(branch, branchIndex);
-			mScratchpad.Add(branch);
-			mBlock.Push(b);
 		}
 		
 		//---------------------------------------------------------------------
@@ -344,7 +327,7 @@ namespace RoboLogo.Lang {
 					// reading a variable name
 					token.type = TokenType.Expression;
 					while(!char.IsWhiteSpace(letter)) {
-						if (!char.IsUpper(letter)) { return false; }
+						if (!char.IsUpper(letter) || letter == '_' || char.IsNumber(letter)) { return false; }
 						mBuilder.Append(letter);
 						if (!ReadNextChar(out letter)) {
 							break;

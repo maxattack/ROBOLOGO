@@ -32,8 +32,7 @@ namespace RoboLogo {
 			};
 			var program = compiler.Parse(@"
 				X = (10+32)
-				LOOP = 0
-				until (LOOP=3)
+				repeat 36 times
 					set color to blue
 					set thickness to 10
 					start stroke
@@ -41,7 +40,6 @@ namespace RoboLogo {
 					turn left
 					move backward 5
 					stop stroke
-					increment LOOP
 				end
 			");
 			var interpreter = new Interpreter(program);

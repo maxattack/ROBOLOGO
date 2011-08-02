@@ -130,7 +130,7 @@ namespace RoboLogo.Lang {
 			} else {
 				// verify variable name
 				for(int i=0; i<elem.Length; ++i) {
-					if (!char.IsUpper(elem[i])) {
+					if (!char.IsUpper(elem[i]) || elem[i] == '_' || char.IsNumber(elem[i])) {
 						return false;
 					}
 				}
