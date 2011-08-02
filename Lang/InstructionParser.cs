@@ -13,7 +13,6 @@ namespace RoboLogo.Lang {
 		public Action<int> turnAction;
 
 		enum TokenType { Expression, Keyword }
-		enum BlockType { WhileLoop }
 
 		delegate State State(Token t);
 		

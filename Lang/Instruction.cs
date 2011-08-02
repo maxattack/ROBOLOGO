@@ -57,6 +57,10 @@ namespace RoboLogo.Lang {
 		}
 	}
 	
+	
+	/// <summary>
+	/// Implementation of a unset-global variable instruction
+	/// </summary>
 	public class UnsetInstruction : Instruction {
 		public string name;
 		
