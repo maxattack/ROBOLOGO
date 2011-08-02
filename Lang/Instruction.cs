@@ -57,6 +57,18 @@ namespace RoboLogo.Lang {
 		}
 	}
 	
+	public class UnsetInstruction : Instruction {
+		public string name;
+		
+		public UnsetInstruction(string name) {
+			this.name = name;
+		}
+		
+		override public void Execute(Interpreter interp) {
+			interp.ClearVariable(name);
+		}
+	}
+	
 	/// <summary>
 	/// Implemention of a branch instruciton, used to implement conditionals and loops
 	/// </summary>

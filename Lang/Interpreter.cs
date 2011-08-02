@@ -48,21 +48,19 @@ namespace RoboLogo.Lang {
 		}
 		
 		internal void SetVariable(string name, int val) {
-			if (!mEnvironment.ContainsKey(name)) {
-				mEnvironment.Add(name, val);
-			} else {
-				mEnvironment[name] = val;
-			}
+			mEnvironment[name] = val;
 		}
 		
 		internal bool GetVariable(string name, out int val) {
-			if (!mEnvironment.ContainsKey(name)) {
+			if (!mEnvironment.TryGetValue(name, out val)) {
 				val = 0;
 				return false;
-			} else {
-				val = mEnvironment[name];
-				return true;
 			}
+			return true;
+		}
+		
+		internal void ClearVariable(string name) {
+			mEnvironment.Remove(name);
 		}
 	}
 	
