@@ -26,17 +26,17 @@ namespace RoboLogo.Lang {
 	}
 	
 	/// <summary>
-	/// Implementation of a goto instruction
+	/// Implementation of a jump instruction
 	/// </summary>
-	public class GotoInstruction : Instruction {
-		int mIndex;
+	public class JumpInstruction : Instruction {
+		public int index;
 		
-		public GotoInstruction(int index) { 
-			mIndex = index; 
+		public JumpInstruction(int index) { 
+			this.index = index; 
 		}
 		
 		override public void Execute(Interpreter interp) { 
-			interp.Goto(mIndex); 
+			interp.Goto(index); 
 		}
 	}
 	
@@ -61,18 +61,18 @@ namespace RoboLogo.Lang {
 	/// Implemention of a branch instruciton, used to implement conditionals and loops
 	/// </summary>
 	public class BranchInstruction : Instruction {
-		Expression mCondition;
-		int mTrueIndex;
-		int mFalseIndex;
+		public Expression condition;
+		public int indexTrue;
+		public int indexFalse;
 		
-		public BranchInstruction(Expression condition, int trueIndex, int falseIndex) {
-			mCondition = condition;
-			mTrueIndex = trueIndex;
-			mFalseIndex = falseIndex;
+		public BranchInstruction(Expression condition, int jumpTrue, int jumpFalse) {
+			this.condition = condition;
+			this.indexTrue = jumpTrue;
+			this.indexFalse = jumpFalse;
 		}
 		
 		override public void Execute(Interpreter interp) {
-			interp.Goto(mCondition.Compute(interp) == 0 ? mFalseIndex : mTrueIndex);
+			interp.Goto(condition.Compute(interp) == 0 ? indexFalse : indexTrue);
 		}
 	}
 	

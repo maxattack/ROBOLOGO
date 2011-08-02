@@ -41,6 +41,7 @@
     <Compile Include="Lang\Expression.cs" />
     <Compile Include="Lang\ExpressionParser.cs" />
     <Compile Include="Lang\InstructionParser.cs" />
+    <Compile Include="Lang\Block.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

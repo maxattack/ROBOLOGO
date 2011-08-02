@@ -13,6 +13,7 @@ namespace RoboLogo.Lang {
 		public Action<int> turnAction;
 
 		enum TokenType { Expression, Keyword }
+		enum BlockType { WhileLoop }
 
 		delegate State State(Token t);
 		
@@ -20,11 +21,12 @@ namespace RoboLogo.Lang {
 			public TokenType type;
 			public string data;
 		}
-
+		
 		TextReader mReader;
 		StringBuilder mBuilder = new StringBuilder();
 		State mState;
 		List<Instruction> mScratchpad;
+		Stack<Block> mBlock = new Stack<Block>();
 		ExpressionParser mExpParser;
 		static readonly string[] sPalette = { "red", "green", "blue" };
 		
@@ -57,6 +59,10 @@ namespace RoboLogo.Lang {
 			var result = mScratchpad.ToArray();
 			mBuilder.Length = 0;
 			mScratchpad.Clear();
+			if (mBlock.Count > 0) {
+				mBlock.Clear();
+				return null;
+			}
 			return result;
 		}
 		
@@ -81,8 +87,25 @@ namespace RoboLogo.Lang {
 					case "stop": return SawStop;
 					case "move": return SawMove;
 					case "turn": return SawTurn;
-					default: return null;
+					case "while": return SawWhile;
+					case "until": return SawUntil;
+					case "increment": return SawIncrement;
+					case "decrement": return SawDecrement;
 				}
+				if (t.data == "end") {
+					if (mBlock.Count == 0) {
+						return null;
+					}
+					var block = mBlock.Pop();
+					switch(block.GetType().Name) {
+						case "WhileBlock":
+							var wb = block as WhileBlock;
+							mScratchpad.Add(new JumpInstruction(wb.instructionIndex));
+							wb.branch.indexFalse = mScratchpad.Count;
+							return Idle;
+					}
+				}
+				
 			}
 			return null;
 		}
@@ -214,7 +237,63 @@ namespace RoboLogo.Lang {
 			}
 			return null;
 		}
+		
+		State SawWhile(Token t) {
+			if (t.type == TokenType.Expression) {
+				var exp = mExpParser.Parse(t.data);
+				if (exp == null) { return null; }
+				StartWhileLoop(exp);
+				return Idle;
+			}
+			return null;
+		}
+		
+		State SawUntil(Token t) {
+			if (t.type == TokenType.Expression) {
+				var exp = mExpParser.Parse(t.data);
+				if (exp == null) { return null; }
+				StartWhileLoop(new UnaryOperationExpression(UnaryOperation.Complement, exp));
+				return Idle;
+			}
+			return null;
+		}
+		
+		State SawIncrement(Token t) {
+			if (t.type == TokenType.Expression) {
+				var exp = mExpParser.Parse(t.data) as VariableExpression;
+				if (exp == null) { return null; }
+				mScratchpad.Add(
+					new SetInstruction(exp.name, new BinaryOperationExpression(BinaryOperation.Add, exp, new LiteralExpression(1)))
+				);
+				return Idle;
+			}
+			return null;
+		}
+		
+		State SawDecrement(Token t) {
+			if (t.type == TokenType.Expression) {
+				var exp = mExpParser.Parse(t.data) as VariableExpression;
+				if (exp == null) { return null; }
+				mScratchpad.Add(
+					new SetInstruction(exp.name, new BinaryOperationExpression(BinaryOperation.Add, exp, new LiteralExpression(-1)))
+				);
+				return Idle;
+			}
+			return null;
+		}
+		
+		//---------------------------------------------------------------------
+		// HELPERS
+		//---------------------------------------------------------------------
 
+		void StartWhileLoop(Expression exp) {
+			int branchIndex = mScratchpad.Count;
+			var branch = new BranchInstruction(exp, branchIndex+1, -1);
+			Block b = new WhileBlock(branch, branchIndex);
+			mScratchpad.Add(branch);
+			mBlock.Push(b);
+		}
+		
 		//---------------------------------------------------------------------
 		// TOKENIZATION
 		//---------------------------------------------------------------------

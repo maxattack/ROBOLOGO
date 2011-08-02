@@ -29,7 +29,7 @@ namespace RoboLogo {
 				set X 0
 				hello
 				set X X+1
-				branch (X<10) 1 4
+				branch (X<10) 1
 			"));
 			*/
 			
@@ -42,13 +42,17 @@ namespace RoboLogo {
 			};
 			var program = compiler.Parse(@"
 				X = (10+32)
-				set color to blue
-				set thickness to 10
-				start stroke
-				move forward X
-				turn left
-				move backward 5
-				stop stroke
+				LOOP = 0
+				until (LOOP=3)
+					set color to blue
+					set thickness to 10
+					start stroke
+					move forward X
+					turn left
+					move backward 5
+					stop stroke
+					increment LOOP
+				end
 			");
 			var interpreter = new Interpreter(program);
 			while(interpreter.ExecuteNextInstruction()) {}
@@ -74,7 +78,7 @@ namespace RoboLogo {
 							buffer.Add(new ActionInstruction(arg=>Console.WriteLine("Hello, World"), new NullExpression()) );
 							break;
 						case "branch":
-							buffer.Add(new BranchInstruction(parser.Parse(tokens[1]), int.Parse(tokens[2]), int.Parse(tokens[3])) );
+							buffer.Add(new BranchInstruction(parser.Parse(tokens[1]), int.Parse(tokens[2]), int.Parse(tokens[3])));
 							break;
 					}
 				}
