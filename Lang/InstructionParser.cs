@@ -92,13 +92,12 @@ namespace RoboLogo.Lang {
 					case "repeat": return SawRepeat;
 					case "increment": return SawIncrement;
 					case "decrement": return SawDecrement;
+					case "end":
+						if (mBlock.Count == 0) { return null; }
+						mBlock.Pop().End();
+						return Idle;
+					default: break;
 				}
-				if (t.data == "end") {
-					if (mBlock.Count == 0) { return null; }
-					mBlock.Pop().End();
-					return Idle;
-				}
-				
 			}
 			return null;
 		}
