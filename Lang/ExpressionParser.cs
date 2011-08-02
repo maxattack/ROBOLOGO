@@ -77,12 +77,6 @@ namespace RoboLogo.Lang {
 				result = null;
 				return false;
 			}
-			/*for(int i=0; i<tokens.Count; i++) {
-				Console.WriteLine(
-					"Tokens[{0}] = {1}\t\tType={2}", 
-					i, tokens[i].expr, tokens[i].type
-				);
-			}*/
 			return ParseTokenSlice(tokens, 0, tokens.Count, out result);
 		}
 		

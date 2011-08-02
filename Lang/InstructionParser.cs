@@ -52,6 +52,7 @@ namespace RoboLogo.Lang {
 					mReader = null;
 					mBuilder.Length = 0;
 					mScratchpad.Clear();
+					mBlock.Clear();
 					return null; 
 				}
 			}
