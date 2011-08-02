@@ -32,7 +32,7 @@ namespace RoboLogo {
 			};
 			var program = compiler.Parse(@"
 				X = (10+32)
-				repeat 36 times
+				repeat 2 times
 					set color to blue
 					set thickness to 10
 					start stroke

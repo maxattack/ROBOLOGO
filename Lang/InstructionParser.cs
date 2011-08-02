@@ -75,7 +75,7 @@ namespace RoboLogo.Lang {
 				var exp = mExpParser.Parse(t.data) as VariableExpression;
 				if (exp != null) {
 					var name = exp.name;
-					return delegate(Token token) {
+					return token => {
 						if (token.data == "=") { return ExpectingAssignmentExpression(name); }
 						return null;
 					};
@@ -87,6 +87,7 @@ namespace RoboLogo.Lang {
 					case "stop": return SawStop;
 					case "move": return SawMove;
 					case "turn": return SawTurn;
+					case "if": return SawIf;
 					case "while": return SawWhile;
 					case "until": return SawUntil;
 					case "repeat": return SawRepeat;
@@ -103,7 +104,7 @@ namespace RoboLogo.Lang {
 		}
 		
 		State ExpectingAssignmentExpression(string name) {
-			return delegate(Token t) {
+			return t => {
 				if (t.type == TokenType.Expression) {
 					var exp = mExpParser.Parse(t.data);
 					if (exp != null) {
@@ -216,6 +217,16 @@ namespace RoboLogo.Lang {
 			}
 			if (exp != null) {
 				mScratchpad.Add(new ActionInstruction(turnAction, exp));
+				return Idle;
+			}
+			return null;
+		}
+		
+		State SawIf(Token t) {
+			if (t.type == TokenType.Expression) {
+				var exp = mExpParser.Parse(t.data);
+				if (exp == null) { return null; }
+				mBlock.Push(new IfBlock(exp, mScratchpad));
 				return Idle;
 			}
 			return null;

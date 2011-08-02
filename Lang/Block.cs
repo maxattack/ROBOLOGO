@@ -29,6 +29,22 @@ namespace RoboLogo.Lang {
 		public abstract void End();
 	}
 	
+	public class IfBlock : Block {
+		public BranchInstruction branch;
+		public int branchIndex;
+		
+		public IfBlock(Expression condition, List<Instruction> buffer) : base(buffer) {
+			branchIndex = buffer.Count;
+			branch = new BranchInstruction(condition, branchIndex+1, -1);
+		}
+		
+		override public void End() {
+			branch.indexFalse = buffer.Count;
+		}
+		
+		// todo add elseif, else
+	}
+	
 	public class WhileBlock : Block {
 		public BranchInstruction branch;
 		public int branchIndex;
