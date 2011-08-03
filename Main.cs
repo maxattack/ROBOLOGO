@@ -41,6 +41,11 @@ namespace RoboLogo {
 					move backward 5
 					stop stroke
 				end
+				if 0
+					move forward 100
+				else
+					move backward 100
+				end
 			");
 			var interpreter = new Interpreter(program);
 			while(interpreter.ExecuteNextInstruction()) {}

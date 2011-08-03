@@ -97,6 +97,12 @@ namespace RoboLogo.Lang {
 						if (mBlock.Count == 0) { return null; }
 						mBlock.Pop().End();
 						return Idle;
+					case "else":
+						if (mBlock.Count == 0) { return null; }
+						var block = mBlock.Peek() as IfBlock;
+						if (block == null) { return null; }
+						if (!block.Else()) { return null; }
+						return Idle;
 					default: break;
 				}
 			}

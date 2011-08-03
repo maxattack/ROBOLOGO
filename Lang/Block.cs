@@ -32,14 +32,32 @@ namespace RoboLogo.Lang {
 	public class IfBlock : Block {
 		public BranchInstruction branch;
 		public int branchIndex;
+		public JumpInstruction elseJump = null;
 		
 		public IfBlock(Expression condition, List<Instruction> buffer) : base(buffer) {
 			branchIndex = buffer.Count;
 			branch = new BranchInstruction(condition, branchIndex+1, -1);
+			buffer.Add(branch);
+		}
+		
+		public bool ElseIf(Expression condition) {
+			return false;
+		}
+		
+		public bool Else() {
+			if (elseJump != null) { return false; }
+			elseJump = new JumpInstruction(-1);
+			buffer.Add(elseJump);
+			branch.indexFalse = buffer.Count;
+			return true;
 		}
 		
 		override public void End() {
-			branch.indexFalse = buffer.Count;
+			if (elseJump != null) {
+				elseJump.index = buffer.Count;
+			} else {
+				branch.indexFalse = buffer.Count;
+			}
 		}
 		
 		// todo add elseif, else
